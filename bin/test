@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+
+require 'parfaitrb'
+
+mmv_metric_length = 3
+
+metric = FFI::MemoryPointer.new(ParfaitRb::MMV::MMVMetric, mmv_metric_length)
+metrics = mmv_metric_length.times.collect do |i|
+  ParfaitRb::MMV::MMVMetric.new(metric + i * ParfaitRb::MMV::MMVMetric.size)
+end
+
+metrics[0][:name] = 'test1'
+metrics[0][:item] = 1
+metrics[0][:type] = ParfaitRb::MMV::MMV_TYPE_U32
+metrics[0][:semantics] = ParfaitRb::MMV::MMV_SEM_COUNTER
+metrics[0][:dimension] = ParfaitRb::MMV::PmUnits.new(:dim_space => 1, :dim_time => -1, :scale_space => 1, :scale_time => 3).to_int32
+metrics[0][:shorttext] = FFI::MemoryPointer.from_string('short 1')
+metrics[0][:helptext] = FFI::MemoryPointer.from_string('help 1')
+
+metrics[1][:name] = 'test2'
+metrics[1][:item] = 2
+metrics[1][:type] = ParfaitRb::MMV::MMV_TYPE_U32
+metrics[1][:indom] = 1
+metrics[1][:semantics] = ParfaitRb::MMV::MMV_SEM_COUNTER
+metrics[1][:dimension] = ParfaitRb::MMV::PmUnits.new(:dim_space => 1, :dim_time => -1, :scale_space => 1, :scale_time => 3).to_int32
+metrics[1][:shorttext] = FFI::MemoryPointer.from_string('short 2')
+metrics[1][:helptext] = FFI::MemoryPointer.from_string('help 2')
+
+metrics[2][:name] = 'test3'
+metrics[2][:item] = 3
+metrics[2][:type] = ParfaitRb::MMV::MMV_TYPE_U32
+metrics[2][:indom] = 2
+metrics[2][:semantics] = ParfaitRb::MMV::MMV_SEM_COUNTER
+metrics[2][:dimension] = ParfaitRb::MMV::PmUnits.new(:dim_space => 1, :dim_time => -1, :scale_space => 1, :scale_time => 3).to_int32
+metrics[2][:shorttext] = FFI::MemoryPointer.from_string('short 3')
+metrics[2][:helptext] = FFI::MemoryPointer.from_string('help 3')
+
+number_of_indoms = 2
+indoms = FFI::MemoryPointer.new(ParfaitRb::MMV::MMVIndom, number_of_indoms)
+indoms_ref = number_of_indoms.times.collect do |i|
+  ParfaitRb::MMV::MMVIndom.new(indoms + i * ParfaitRb::MMV::MMVIndom.size)
+end
+
+
+  number_of_instances1 = 2
+  instances1 = FFI::MemoryPointer.new(ParfaitRb::MMV::MMVInstances, number_of_instances1)
+  instances1_ref = number_of_instances1.times.collect do |i|
+    ParfaitRb::MMV::MMVInstances.new(instances1 + i * ParfaitRb::MMV::MMVInstances.size)
+  end
+  instances1_ref[0][:internal] = 1
+  instances1_ref[0][:external] = '1inst1'
+  instances1_ref[1][:internal] = 2
+  instances1_ref[1][:external] = '1inst2'
+
+indoms_ref[0][:serial] = 1
+indoms_ref[0][:count] = number_of_instances1
+indoms_ref[0][:instances] = instances1
+indoms_ref[0][:shorttext] = FFI::MemoryPointer.from_string('short text')
+indoms_ref[0][:helptext] = FFI::MemoryPointer.from_string('help text')
+
+
+  number_of_instances2 = 2
+  instances2 = FFI::MemoryPointer.new(ParfaitRb::MMV::MMVInstances, number_of_instances2)
+  instances2_ref = number_of_instances2.times.collect do |i|
+    ParfaitRb::MMV::MMVInstances.new(instances2 + i * ParfaitRb::MMV::MMVInstances.size)
+  end
+  instances2_ref[0][:internal] = 1
+  instances2_ref[0][:external] = '2inst1'
+  instances2_ref[1][:internal] = 2
+  instances2_ref[1][:external] = '2inst2'
+
+indoms_ref[1][:serial] = 2
+indoms_ref[1][:count] = number_of_instances2
+indoms_ref[1][:instances] = instances2
+indoms_ref[1][:shorttext] = FFI::MemoryPointer.from_string('short text 2')
+indoms_ref[1][:helptext] = FFI::MemoryPointer.from_string('help text 2')
+
+
+mmv = ParfaitRb::MMV.new('derps', 333, metric, mmv_metric_length, indoms, number_of_indoms)
+mmv.set_metric('test1', nil, 3322)
+mmv.set_metric('test2', '1inst1', 211)
+mmv.set_metric('test2', nil, 211)
+
+puts mmv.inspect
