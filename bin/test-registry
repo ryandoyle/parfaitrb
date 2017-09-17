@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require 'parfaitrb'
+
+registry = ParfaitRb::Registry.new('derps', ParfaitRb::MMV::MetricsWriter)
+
+counter = ParfaitRb::Metric::Counter.new('my.counter')
+
+registry.register(counter)
+registry.start
+
+100.times do
+  counter.increment!
+  puts "incremented conter"
+sleep 1
+end
